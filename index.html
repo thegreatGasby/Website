@@ -5,6 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>显示当前时间</title>
     <script src="new.js"></script>
+    <script>
+        // 调用 Flask 后端 API
+        fetch('http://localhost:5000/api/get')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === "success") {
+                    // 将文件内容插入到 <p> 标签中
+                    document.getElementById('file-content').innerText = data.message;
+                } 
+            })
+            .catch(error => {
+                document.getElementById('file-content').innerText = "Failed to load file: " + error;
+            });
+    </script>
   </head>
   <body onload="显示时间()">
     <h1>当前时间是：</h1>
