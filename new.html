@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>网页计时器</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f0f0f0;
+      }
+      #timer {
+        font-size: 3em;
+        margin-bottom: 20px;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 1em;
+        margin: 5px;
+        cursor: pointer;
+      }
+      input {
+        padding: 10px 20px;
+        font-size: 1em;
+        margin: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="input-div">
+      <input type="text" id="input" placeholder="设置倒计时秒数" />
+      <button id="submit">提交</button>
+    </div>
+    <div>
+      <div id="timer">01:00:00</div>
+      <button id="start">开始</button>
+      <button id="pause">暂停</button>
+      <button id="reset">重置</button>
+    </div>
+
+    <audio id="clock" src="piano.wav" preload="auto" loop="true"></audio>
+
+    <script>
+      let startTime = 0;
+      let elapsedTime = 0;
+      let paused = true;
+      let intervalId;
+      let begin = false;
+      var seconds = 3600;
+      var contextSeconds = secondtoStr(seconds);
+
+      const timerDisplay = document.getElementById("timer");
+      const startButton = document.getElementById("start");
+      const pauseButton = document.getElementById("pause");
+      const resetButton = document.getElementById("reset");
+      const clock = document.getElementById("clock");
+      const submitButton = document.getElementById("submit");
+
+      function secondtoStr(second) {
+        const totalSeconds = second;
+        const hours = Math.floor(totalSeconds / 3600)
+          .toString()
+          .padStart(2, "0");
+        const minutes = Math.floor((totalSeconds % 3600) / 60)
+          .toString()
+          .padStart(2, "0");
+        const seconds = (totalSeconds % 60).toString().padStart(2, "0");
+        return `${hours}:${minutes}:${seconds}`;
+      }
+
+      function updateTime() {
+        elapsedTime = Date.now() - startTime;
+        const totalSeconds = seconds - Math.floor(elapsedTime / 1000);
+        timerDisplay.textContent = secondtoStr(totalSeconds);
+        if (totalSeconds < 0) {
+          timerDisplay.textContent = contextSeconds;
+          clock.play();
+          clearInterval(intervalId);
+        }
+      }
+
+      startButton.addEventListener("click", () => {
+        if (paused) {
+          paused = false;
+          startTime = Date.now() - elapsedTime;
+          intervalId = setInterval(updateTime, 1000);
+          begin = true;
+        }
+      });
+
+      pauseButton.addEventListener("click", () => {
+        if (!paused) {
+          paused = true;
+          clearInterval(intervalId);
+        }
+      });
+
+      resetButton.addEventListener("click", () => {
+        begin = false;
+        paused = true;
+        elapsedTime = 0;
+        clearInterval(intervalId);
+        timerDisplay.textContent = contextSeconds;
+        clock.pause();
+        clock.load();
+      });
+
+      submitButton.addEventListener("click", () => {
+        if (!begin) {
+          const input = document.getElementById("input");
+          seconds = parseInt(input.value);
+          contextSeconds = secondtoStr(seconds);
+          timerDisplay.textContent = contextSeconds;
+        }
+      });
+    </script>
+  </body>
+</html>
